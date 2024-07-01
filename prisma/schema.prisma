@@ -1,0 +1,60 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  password  String
+  login     String     @unique
+  name      String     @default("User name")
+  surname   String     @default("User surname")
+  createdAt DateTime   @default(now())
+  Favorite  Favorite[]
+  Review    Review[]
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId], name: "userId_index")
+}
+
+model Movie {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String
+  releaseDate DateTime
+  rating      Float
+  createdAt   DateTime   @default(now())
+  Favorite    Favorite[]
+  Review      Review[]
+}
+
+model Favorite {
+  id      Int   @id @default(autoincrement())
+  userId  Int
+  movieId Int
+  user    User  @relation(fields: [userId], references: [id])
+  movie   Movie @relation(fields: [movieId], references: [id])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  content   String
+  rating    Float
+  movieId   Int
+  userId    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  movie     Movie    @relation(fields: [movieId], references: [id])
+}
