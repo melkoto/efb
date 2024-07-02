@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 
 @Injectable()
@@ -64,6 +64,13 @@ export class UserRepository {
         name: true,
         surname: true,
       },
+    });
+  }
+
+  async updateRole(userId: number, newRole: Role) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { role: { set: newRole } },
     });
   }
 }

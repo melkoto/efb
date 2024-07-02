@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -35,5 +35,9 @@ export class UsersService {
 
   async findByLogin(login: string): Promise<Partial<User> | null> {
     return this.userRepository.findUserByLogin(login);
+  }
+
+  async updateRole(userId: number, newRole: Role) {
+    return this.userRepository.updateRole(userId, newRole);
   }
 }

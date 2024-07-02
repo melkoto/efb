@@ -15,6 +15,7 @@ model User {
   name      String     @default("User name")
   surname   String     @default("User surname")
   createdAt DateTime   @default(now())
+  role      Role       @default(USER)
   Favorite  Favorite[]
   Review    Review[]
 }
@@ -57,4 +58,11 @@ model Review {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
   movie     Movie    @relation(fields: [movieId], references: [id])
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+  OWNER
 }

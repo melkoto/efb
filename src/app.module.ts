@@ -14,6 +14,9 @@ import { UsersModule } from './user/user.module';
 import { MovieModule } from './movie/movie.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { ReviewModule } from './review/review.module';
+import { RoleModule } from './role/role.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from '@src/role/role.guard';
 
 @Module({
   imports: [
@@ -30,6 +33,13 @@ import { ReviewModule } from './review/review.module';
     MovieModule,
     FavoriteModule,
     ReviewModule,
+    RoleModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
   ],
 })
 export class AppModule implements NestModule {
