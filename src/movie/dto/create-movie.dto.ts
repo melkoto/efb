@@ -5,7 +5,7 @@ import {
   IsString,
   MaxDate,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 
 export class CreateMovieDto {
   @IsString()
@@ -16,7 +16,10 @@ export class CreateMovieDto {
   description: string;
 
   @IsDate()
-  @Type(() => Date)
+  @Transform(({ value }) => {
+    const [day, month, year] = value.split('.').map(Number);
+    return new Date(year, month - 1, day);
+  })
   @MaxDate(new Date())
   releaseDate: Date;
 

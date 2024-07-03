@@ -6,7 +6,6 @@ import { AuthController } from './auth.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { UsersModule } from '@src/user/user.module';
-import { AuthMiddleware } from '@src/common/middlewares/auth.middleware';
 
 @Module({
   imports: [
@@ -18,7 +17,7 @@ import { AuthMiddleware } from '@src/common/middlewares/auth.middleware';
       signOptions: { expiresIn: '15m' },
     }),
   ],
-  providers: [AuthService, RefreshTokenRepository, AuthMiddleware],
+  providers: [AuthService, RefreshTokenRepository],
   controllers: [AuthController],
 })
 export class AuthModule {}

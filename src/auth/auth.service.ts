@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { LoginDto } from './dto/login.dto';
+import { UsersService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from '../auth/dto/create-user.dto';
-import { RefreshTokenRepository } from './refresh-token.repository';
-import { UsersService } from '@src/user/user.service';
-import { LoginDto } from '@src/auth/dto/login.dto';
+import { CreateUserDto } from '@src/auth/dto/create-user.dto';
+import { RefreshTokenRepository } from '@src/auth/refresh-token.repository';
 
 @Injectable()
 export class AuthService {
@@ -14,42 +14,42 @@ export class AuthService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
-    if (!email || !password) {
+  async signin(
+    loginDto: LoginDto,
+  ): Promise<{ accessToken: string; refreshToken: string; message: string }> {
+    const user = await this.usersService.findByEmail(loginDto.email);
+
+    if (!user) {
+      console.log('User not found');
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const user = await this.usersService.findByEmail(email);
-
-    if (
-      user &&
-      user.password &&
-      (await bcrypt.compare(password, user.password))
-    ) {
-      const { password, ...result } = user;
-      return result;
+    if (!user.password) {
+      console.log('User password is undefined');
+      throw new UnauthorizedException('Invalid credentials');
     }
-    return null;
-  }
 
-  async signin(
-    loginDto: LoginDto,
-  ): Promise<{ accessToken?: string; refreshToken?: string; message: string }> {
-    const user = await this.validateUser(loginDto.email, loginDto.password);
+    const passwordMatch = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
 
-    if (!user) {
-      return { message: 'Invalid credentials' };
+    if (!passwordMatch) {
+      console.log('Password does not match');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const payload = { email: user.email, sub: user.id, role: user.role };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '7d',
+    });
 
-    await this.refreshTokenRepository.createToken(
-      refreshToken,
-      user.id,
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    );
+    console.log('Generated Access Token:', accessToken);
+    console.log('Generated Refresh Token:', refreshToken);
 
     return { accessToken, refreshToken, message: 'Login successful' };
   }
@@ -61,8 +61,16 @@ export class AuthService {
       password: hashedPassword,
     });
     const payload = { email: user.email, sub: user.id, role: user.role };
-    const accessToken = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '7d',
+    });
+
+    console.log('Generated Access Token during Signup:', accessToken);
+    console.log('Generated Refresh Token during Signup:', refreshToken);
 
     return {
       accessToken,
@@ -72,7 +80,7 @@ export class AuthService {
 
   async verifyToken(token: string): Promise<any> {
     try {
-      return this.jwtService.verify(token);
+      return this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
     } catch (err) {
       throw new UnauthorizedException('Invalid token');
     }
@@ -88,7 +96,10 @@ export class AuthService {
 
     const user = await this.usersService.findById(storedToken.userId);
     const payload = { email: user?.email, sub: user?.id, role: user?.role };
-    const newAccessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const newAccessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '15m',
+    });
 
     return { accessToken: newAccessToken };
   }
