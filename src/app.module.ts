@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { LoggerMiddleware } from './common/middleware/logger.middleware';
-import { AuthMiddleware } from './common/middleware/auth.middleware';
+import { LoggerMiddleware } from '@src/common/middlewares/logger.middleware';
+import { AuthMiddleware } from '@src/common/middlewares/auth.middleware';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './user/user.module';
@@ -16,7 +16,7 @@ import { FavoriteModule } from './favorite/favorite.module';
 import { ReviewModule } from './review/review.module';
 import { RoleModule } from './role/role.module';
 import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from '@src/role/role.guard';
+import { RolesGuard } from '@src/common/guards/role.guard';
 
 @Module({
   imports: [
@@ -54,6 +54,6 @@ export class AppModule implements NestModule {
         { path: 'api/auth/signup', method: RequestMethod.POST },
         { path: 'api/auth/signin', method: RequestMethod.POST },
       )
-      .forRoutes({ path: 'api/*', method: RequestMethod.ALL });
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

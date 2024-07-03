@@ -1,8 +1,8 @@
 import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
-import { CreateUserDto } from '@src/auth/dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -10,28 +10,27 @@ export class AuthController {
 
   @Post('signup')
   async signup(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
-    const user = await this.authService.signup(createUserDto);
-    return res.status(HttpStatus.CREATED).json(user);
+    const { accessToken, refreshToken } =
+      await this.authService.signup(createUserDto);
+    res.cookie('jwt', accessToken, { httpOnly: true });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true });
+    return res.status(HttpStatus.CREATED).json({ accessToken, refreshToken });
   }
 
   @Post('signin')
   async signin(@Body() loginDto: LoginDto, @Res() res: Response) {
     try {
-      const user = await this.authService.validateUser(
-        loginDto.email,
-        loginDto.password,
-      );
-      if (!user) {
+      const { accessToken, refreshToken, message } =
+        await this.authService.signin(loginDto);
+      if (accessToken && refreshToken) {
+        res.cookie('jwt', accessToken, { httpOnly: true });
+        res.cookie('refreshToken', refreshToken, { httpOnly: true });
         return res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ message: 'Invalid credentials' });
+          .status(HttpStatus.OK)
+          .json({ message, accessToken, refreshToken });
+      } else {
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message });
       }
-      const { accessToken, refreshToken } = await this.authService.login(user);
-      res.cookie('jwt', accessToken, { httpOnly: true });
-      res.cookie('refreshToken', refreshToken, { httpOnly: true });
-      return res
-        .status(HttpStatus.OK)
-        .json({ message: 'Login successful', accessToken, refreshToken });
     } catch (error) {
       return res
         .status(HttpStatus.UNAUTHORIZED)

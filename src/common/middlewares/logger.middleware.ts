@@ -14,7 +14,6 @@ export class LoggerMiddleware implements NestMiddleware {
       ),
     );
     console.log(chalk.blue(`IP: ${req.ip}`));
-    console.log(chalk.magenta(`User-Agent: ${req.headers['user-agent']}`));
     console.log(chalk.cyan(`Headers: ${JSON.stringify(req.headers)}`));
     console.log(chalk.yellow(`Body: ${JSON.stringify(req.body)}`));
 

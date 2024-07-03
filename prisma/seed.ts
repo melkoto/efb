@@ -120,6 +120,69 @@ async function main() {
   });
 
   console.log({ review1, review2 });
+
+  // Добавление лайков к фильмам
+  const movieLike1 = await prisma.movieLike.upsert({
+    where: { movieId_userId: { movieId: movie1.id, userId: user1.id } },
+    update: {},
+    create: {
+      movieId: movie1.id,
+      userId: user1.id,
+    },
+  });
+
+  const movieLike2 = await prisma.movieLike.upsert({
+    where: { movieId_userId: { movieId: movie2.id, userId: moderator.id } },
+    update: {},
+    create: {
+      movieId: movie2.id,
+      userId: moderator.id,
+    },
+  });
+
+  console.log({ movieLike1, movieLike2 });
+
+  // Добавление дизлайков к фильмам
+  const movieDislike1 = await prisma.movieDislike.upsert({
+    where: { movieId_userId: { movieId: movie1.id, userId: moderator.id } },
+    update: {},
+    create: {
+      movieId: movie1.id,
+      userId: moderator.id,
+    },
+  });
+
+  const movieDislike2 = await prisma.movieDislike.upsert({
+    where: { movieId_userId: { movieId: movie2.id, userId: user1.id } },
+    update: {},
+    create: {
+      movieId: movie2.id,
+      userId: user1.id,
+    },
+  });
+
+  console.log({ movieDislike1, movieDislike2 });
+
+  // Добавление лайков и дизлайков к отзывам
+  const reviewLike1 = await prisma.reviewLike.upsert({
+    where: { reviewId_userId: { reviewId: review1.id, userId: user1.id } },
+    update: {},
+    create: {
+      reviewId: review1.id,
+      userId: user1.id,
+    },
+  });
+
+  const reviewDislike1 = await prisma.reviewDislike.upsert({
+    where: { reviewId_userId: { reviewId: review2.id, userId: user1.id } },
+    update: {},
+    create: {
+      reviewId: review2.id,
+      userId: user1.id,
+    },
+  });
+
+  console.log({ reviewLike1, reviewDislike1 });
 }
 
 main()

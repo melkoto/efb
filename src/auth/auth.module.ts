@@ -6,7 +6,7 @@ import { AuthController } from './auth.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { UsersModule } from '@src/user/user.module';
-import { AuthMiddleware } from '@src/common/middleware/auth.middleware';
+import { AuthMiddleware } from '@src/common/middlewares/auth.middleware';
 
 @Module({
   imports: [

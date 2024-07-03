@@ -37,6 +37,7 @@ export class UserRepository {
         login: true,
         name: true,
         surname: true,
+        role: true,
       },
     });
   }

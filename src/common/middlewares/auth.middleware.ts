@@ -13,14 +13,24 @@ export class AuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     console.log(`AuthMiddleware: ${req.path}`);
 
-    const token = req.cookies['jwt'];
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      console.log(
+        `AuthMiddleware: Authorization header not found for ${req.path}`,
+      );
+      return next();
+    }
+
+    const token = authHeader.split(' ')[1];
     if (!token) {
       console.log(`AuthMiddleware: Token not found for ${req.path}`);
       throw new UnauthorizedException('Token not found');
     }
 
     try {
-      req.user = this.jwtService.verify(token);
+      const decoded = this.jwtService.verify(token);
+      req.user = decoded;
+      console.log(`AuthMiddleware: User decoded: ${JSON.stringify(req.user)}`);
     } catch (err) {
       console.log(`AuthMiddleware: Invalid token for ${req.path}`);
       throw new UnauthorizedException('Invalid token');
