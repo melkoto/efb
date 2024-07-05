@@ -3,13 +3,12 @@ import { MovieService } from './movie.service';
 import { CreateMovieDto } from '@src/movie/dto/create-movie.dto';
 import { Role } from '@prisma/client';
 import { Roles } from '@src/common/decorators/role.decorator';
-import { JwtAuthGuard } from '@src/common/guards/jwt-auth.guards';
 import { RolesGuard } from '@src/common/guards/role.guard';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Movies')
 @Controller('movies')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(RolesGuard)
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 

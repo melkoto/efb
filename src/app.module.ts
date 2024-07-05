@@ -9,6 +9,8 @@ import { FavoriteModule } from './favorite/favorite.module';
 import { ReviewModule } from './review/review.module';
 import { RoleModule } from './role/role.module';
 import { LikeModule } from './like/like.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from '@src/common/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -28,6 +30,13 @@ import { LikeModule } from './like/like.module';
     ReviewModule,
     RoleModule,
     LikeModule,
+  ],
+  controllers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
   ],
 })
 export class AppModule {}

@@ -45,11 +45,8 @@ export class AuthService {
     });
     const refreshToken = this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
-      expiresIn: '7d',
+      expiresIn: '1d',
     });
-
-    console.log('Generated Access Token:', accessToken);
-    console.log('Generated Refresh Token:', refreshToken);
 
     return { accessToken, refreshToken, message: 'Login successful' };
   }

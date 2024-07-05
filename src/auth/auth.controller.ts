@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { NoAuth } from '@src/common/decorators/no-auth.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -11,6 +12,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
+  @NoAuth()
   @ApiOperation({ summary: 'Регистрация пользователя' })
   async signup(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
     const { accessToken, refreshToken } =
@@ -21,13 +23,14 @@ export class AuthController {
   }
 
   @Post('signin')
+  @NoAuth()
   @ApiOperation({ summary: 'Аутентификация пользователя' })
   async signin(@Body() loginDto: LoginDto, @Res() res: Response) {
     try {
       const { accessToken, refreshToken, message } =
         await this.authService.signin(loginDto);
       if (accessToken && refreshToken) {
-        res.cookie('jwt', accessToken, { httpOnly: true });
+        res.cookie('accessToken', accessToken, { httpOnly: true });
         res.cookie('refreshToken', refreshToken, { httpOnly: true });
         return res
           .status(HttpStatus.OK)
@@ -43,13 +46,15 @@ export class AuthController {
   }
 
   @Post('signout')
+  @NoAuth()
   @ApiOperation({ summary: 'Выход пользователя' })
   async signout(
     @Body('refreshToken') refreshToken: string,
     @Res() res: Response,
   ) {
-    await this.authService.revokeRefreshToken(refreshToken);
-    res.clearCookie('jwt');
+    // console.log({ refreshToken });
+    // await this.authService.revokeRefreshToken(refreshToken);
+    res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
     return res.status(HttpStatus.OK).json({ message: 'Logout successful' });
   }
