@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,8 +24,14 @@ async function bootstrap() {
     }),
   );
 
-  // const reflector = app.get(Reflector);
-  // app.useGlobalGuards(new RolesGuard(reflector));
+  const config = new DocumentBuilder()
+    .setTitle('API Documentation')
+    .setDescription('API description')
+    .setVersion('1.0')
+    .addTag('api')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   app.use(cookieParser());
   app.use(helmet());

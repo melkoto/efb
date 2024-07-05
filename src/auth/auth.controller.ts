@@ -3,12 +3,15 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
+  @ApiOperation({ summary: 'Регистрация пользователя' })
   async signup(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
     const { accessToken, refreshToken } =
       await this.authService.signup(createUserDto);
@@ -18,6 +21,7 @@ export class AuthController {
   }
 
   @Post('signin')
+  @ApiOperation({ summary: 'Аутентификация пользователя' })
   async signin(@Body() loginDto: LoginDto, @Res() res: Response) {
     try {
       const { accessToken, refreshToken, message } =
@@ -39,6 +43,7 @@ export class AuthController {
   }
 
   @Post('signout')
+  @ApiOperation({ summary: 'Выход пользователя' })
   async signout(
     @Body('refreshToken') refreshToken: string,
     @Res() res: Response,
@@ -50,6 +55,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @ApiOperation({ summary: 'Обновление токена' })
   async refresh(
     @Body('refreshToken') refreshToken: string,
     @Res() res: Response,
